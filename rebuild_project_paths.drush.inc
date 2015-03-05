@@ -42,15 +42,14 @@ function rebuild_project_paths_drush_help($section) {
  */
 function drush_rebuild_project_paths() {
   $result = db_query('SELECT filename, name FROM {system}');
-
-  while ($mod = db_fetch_array($result)) {
-    exec('find . -name ' . basename($mod['filename']), $modpath_arr);
-    if (count($modpath_arr) == 1) {
+ foreach ($result->fetchAll() as $mod) {
+   exec('find . -name ' . basename($mod->filename), $modpath_arr);
+   if (count($modpath_arr) == 1) {
       $modpath = ltrim($modpath_arr[0], './');
-      $dbpath = $mod['filename'];
+      $dbpath = $mod->filename;
       if ($dbpath != $modpath) {
-        drush_print("Updating " . $mod['name']. "'s path");
-        db_query("UPDATE system SET filename='%s' WHERE name='%s'", $modpath, $mod['name']);
+        drush_print("Updating " . $mod->name. "'s path");
+        db_query("UPDATE system SET filename='%s' WHERE name='%s'", $modpath, $mod->name);
       }
     }
     unset($modpath_arr);
